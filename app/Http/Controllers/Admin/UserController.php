@@ -65,7 +65,11 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        //
+        // Obtener todos los roles disponibles para mostrarlos en el select
+        $roles = Role::all();
+
+        // Retornar la vista edit.blade.php con los datos del usuario y los roles
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
     /**
@@ -73,7 +77,24 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id, // Permite mantener el email actual
+            'role_id' => 'required|exists:roles,id',
+            'password' => 'nullable|string|min:8|confirmed', // password_confirmation
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->role_id = $request->role_id;
+
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+
+        $user->save();
+
+        return redirect()->route('admin.users')->with('success', 'Usuario actualizado correctamente.');
     }
 
     /**

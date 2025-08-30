@@ -49,7 +49,7 @@ class UserController extends Controller
         $user->role_id = $request->role_id;
         $user->save();
 
-        return redirect()->route('admin.users')->with('success', 'Usuario creado correctamente.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuario creado correctamente.');
     }
 
     /**
@@ -94,7 +94,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->route('admin.users')->with('success', 'Usuario actualizado correctamente.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
     /**
@@ -105,11 +105,11 @@ class UserController extends Controller
 
         // Evitar que un administrador se elimine a sí mismo
         if (auth()->user()->id === $user->id) {
-            return redirect()->route('admin.users')->with('error', 'No puedes eliminar tu propia cuenta.');
+            return redirect()->route('admin.users.index')->with('error', 'No puedes eliminar tu propia cuenta.');
         }
 
         $user->delete();
 
-        return redirect()->route('admin.users')->with('success', 'Usuario eliminado correctamente.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuario eliminado correctamente.');
     }
 }

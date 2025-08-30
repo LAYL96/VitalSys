@@ -1,3 +1,8 @@
+@php
+    $user = Auth::user();
+    $role = $user->role->name ?? '';
+@endphp
+
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -5,39 +10,43 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ 
+                        $role === 'Administrador' ? route('admin.users.index') :
+                        ($role === 'Empleado' ? route('empleado') :
+                        ($role === 'Médico' ? route('medico') :
+                        ($role === 'Cliente' ? route('cliente') : route('dashboard'))))
+                    }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <!-- Dashboard (común para todos) -->
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href=" 
+                        $role === 'Administrador' ? route('admin.users.index') :
+                        ($role === 'Empleado' ? route('empleado') :
+                        ($role === 'Médico' ? route('medico') :
+                        ($role === 'Cliente' ? route('cliente') : route('dashboard'))))
+                    " 
+                        :active="request()->routeIs('*')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
                     <!-- Menús según rol -->
-                    @if (Auth::user()->role === 'administrador')
-                        <x-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.*')">
+                    @if ($role === 'Administrador')
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')">
                             {{ __('Administración') }}
                         </x-nav-link>
-                    @endif
-
-                    @if (Auth::user()->role === 'empleado')
-                        <x-nav-link :href="route('empleado.index')" :active="request()->routeIs('empleado.*')">
+                    @elseif ($role === 'Empleado')
+                        <x-nav-link :href="route('empleado')" :active="request()->routeIs('empleado.*')">
                             {{ __('Inventario') }}
                         </x-nav-link>
-                    @endif
-
-                    @if (Auth::user()->role === 'medico')
-                        <x-nav-link :href="route('medico.index')" :active="request()->routeIs('medico.*')">
+                    @elseif ($role === 'Médico')
+                        <x-nav-link :href="route('medico')" :active="request()->routeIs('medico.*')">
                             {{ __('Citas Médicas') }}
                         </x-nav-link>
-                    @endif
-
-                    @if (Auth::user()->role === 'cliente')
-                        <x-nav-link :href="route('cliente.index')" :active="request()->routeIs('cliente.*')">
+                    @elseif ($role === 'Cliente')
+                        <x-nav-link :href="route('cliente')" :active="request()->routeIs('cliente.*')">
                             {{ __('Mis Citas') }}
                         </x-nav-link>
                     @endif
@@ -50,8 +59,7 @@
                     <x-slot name="trigger">
                         <button
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
+                            <div>{{ $user->name }}</div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 20 20">
@@ -68,12 +76,10 @@
                             {{ __('Perfil') }}
                         </x-dropdown-link>
 
-                        <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <x-dropdown-link :href="route('logout')"
-                                onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                                onclick="event.preventDefault(); this.closest('form').submit();">
                                 {{ __('Cerrar sesión') }}
                             </x-dropdown-link>
                         </form>
@@ -81,7 +87,7 @@
                 </x-dropdown>
             </div>
 
-            <!-- Hamburger -->
+            <!-- Hamburger (responsive) -->
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open"
                     class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
@@ -100,58 +106,14 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <x-responsive-nav-link :href="
+                $role === 'Administrador' ? route('admin.users.index') :
+                ($role === 'Empleado' ? route('empleado') :
+                ($role === 'Médico' ? route('medico') :
+                ($role === 'Cliente' ? route('cliente') : route('dashboard'))))
+            " :active="request()->routeIs('*')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-
-            <!-- Menús según rol (modo responsive) -->
-            @if (Auth::user()->role === 'administrador')
-                <x-responsive-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.*')">
-                    {{ __('Administración') }}
-                </x-responsive-nav-link>
-            @endif
-
-            @if (Auth::user()->role === 'empleado')
-                <x-responsive-nav-link :href="route('empleado.index')" :active="request()->routeIs('empleado.*')">
-                    {{ __('Inventario') }}
-                </x-responsive-nav-link>
-            @endif
-
-            @if (Auth::user()->role === 'medico')
-                <x-responsive-nav-link :href="route('medico.index')" :active="request()->routeIs('medico.*')">
-                    {{ __('Citas Médicas') }}
-                </x-responsive-nav-link>
-            @endif
-
-            @if (Auth::user()->role === 'cliente')
-                <x-responsive-nav-link :href="route('cliente.index')" :active="request()->routeIs('cliente.*')">
-                    {{ __('Mis Citas') }}
-                </x-responsive-nav-link>
-            @endif
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Perfil') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <x-responsive-nav-link :href="route('logout')"
-                        onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Cerrar sesión') }}
-                    </x-responsive-nav-link>
-                </form>
-            </div>
         </div>
     </div>
 </nav>

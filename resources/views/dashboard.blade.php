@@ -15,12 +15,19 @@
                 </div>
             </div>
 
-            <!-- Botón para Administrador -->
+            <!-- Botones para Administrador -->
             @if (Auth::user()->role->name === 'Administrador')
-                <div class="mt-6">
-                    <a href="{{ route('admin.users') }}"
+                <div class="mt-6 space-y-4">
+                    <!-- Gestión de Usuarios -->
+                    <a href="{{ route('admin.users.index') }}"
                         class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition">
                         Gestión de Usuarios
+                    </a>
+
+                    <!-- Gestión de Categorías -->
+                    <a href="{{ route('admin.categories.index') }}"
+                        class="inline-block px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition">
+                        Gestión de Categorías
                     </a>
                 </div>
             @endif

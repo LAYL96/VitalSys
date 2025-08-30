@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\RoleMiddleware;
@@ -26,24 +28,22 @@ Route::middleware('auth')->group(function () {
 require __DIR__ . '/auth.php';
 
 // ===========================================
-// Rutas de administración de usuarios (Administrador)
+// Rutas de administración (solo Administrador)
 // ===========================================
-Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-    // Listado de usuarios
-    Route::get('/users', [UserController::class, 'index'])->name('users');
+        // Usuarios
+        Route::resource('users', UserController::class);
 
-    // Crear usuario
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        // Categorías
+        Route::resource('categories', CategoryController::class);
 
-    // Editar usuario
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-
-    // Eliminar usuario
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-});
+        // Proveedores
+        Route::resource('suppliers', SupplierController::class);
+    });
 
 // ===========================================
 // Rutas específicas para otros roles

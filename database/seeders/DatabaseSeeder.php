@@ -23,11 +23,9 @@ class DatabaseSeeder extends Seeder
 
         */
 
-        Role::insert([
-            ['name' => 'Administrador'],
-            ['name' => 'Empleado'],
-            ['name' => 'Médico'],
-            ['name' => 'Cliente'],
+        $this->call([
+            RoleSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

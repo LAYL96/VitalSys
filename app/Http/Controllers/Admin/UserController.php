@@ -12,7 +12,8 @@ class UserController extends Controller
 
     public function index()
     {
-        return "Gestión de usuarios (solo para administradores)";
+        $users = User::with('role')->paginate(10); // Trae 10 usuarios por página
+        return view('admin.users.index', compact('users'));
     }
 
     /**

@@ -102,6 +102,14 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+
+        // Evitar que un administrador se elimine a sí mismo
+        if (auth()->user()->id === $user->id) {
+            return redirect()->route('admin.users')->with('error', 'No puedes eliminar tu propia cuenta.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users')->with('success', 'Usuario eliminado correctamente.');
     }
 }

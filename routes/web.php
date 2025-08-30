@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,10 +21,24 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__ . '/auth.php';
 
-Route::middleware(['auth', 'role:Administrador'])->group(function () {
-    Route::get('/admin', function () {
-        return "Bienvenido Administrador";
-    });
+/*
+Route::middleware(['auth', 'role:Administrador'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('users', UserController::class)->except(['show']);
+});
+*/
+
+// Rutas para autenticados
+Route::middleware(['auth'])->group(function () {
+
+    // Ruta de administración de usuarios solo para administradores
+    Route::get('/admin/users', [UserController::class, 'index'])
+        ->middleware(RoleMiddleware::class . ':Administrador')
+        ->name('admin.users');
+
+    // Puedes agregar otras rutas protegidas por roles
+    // Route::get('/empleado/dashboard', [EmpleadoController::class, 'index'])
+    //     ->middleware(RoleMiddleware::class . ':Empleado')
+    //     ->name('empleado.dashboard');
 });
 
 Route::middleware(['auth', 'role:Empleado'])->group(function () {

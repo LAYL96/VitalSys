@@ -17,18 +17,44 @@
 
             <!-- Botones para Administrador -->
             @if (Auth::user()->role->name === 'Administrador')
-                <div class="mt-6 space-y-4">
+                <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
                     <!-- Gestión de Usuarios -->
                     <a href="{{ route('admin.users.index') }}"
-                        class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition">
-                        Gestión de Usuarios
+                        class="flex items-center justify-center space-x-2 px-6 py-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition">
+                        <!-- Ícono de usuario -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5.121 17.804A3 3 0 016 15h12a3 3 0 011.879.804M15 11a3 3 0 10-6 0 3 3 0 006 0z" />
+                        </svg>
+                        <span>Gestión de Usuarios</span>
                     </a>
 
                     <!-- Gestión de Categorías -->
                     <a href="{{ route('admin.categories.index') }}"
-                        class="inline-block px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition">
-                        Gestión de Categorías
+                        class="flex items-center justify-center space-x-2 px-6 py-4 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition">
+                        <!-- Ícono de categorías -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <span>Gestión de Categorías</span>
                     </a>
+
+                    <!-- Gestión de Proveedores -->
+                    <a href="{{ route('admin.suppliers.index') }}"
+                        class="flex items-center justify-center space-x-2 px-6 py-4 bg-purple-600 text-white font-semibold rounded-lg shadow hover:bg-purple-700 transition">
+                        <!-- Ícono de proveedores -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7h18M3 12h18M3 17h18" />
+                        </svg>
+                        <span>Gestión de Proveedores</span>
+                    </a>
+
                 </div>
             @endif
 

@@ -55,6 +55,12 @@
                         <span>Gestión de Proveedores</span>
                     </a>
 
+                    <!-- Gestión de Productos -->
+                    <a href="{{ route('admin.products.index') }}"
+                        class="inline-block px-6 py-3 bg-orange-600 text-white font-semibold rounded-lg shadow hover:bg-orange-700 transition">
+                        Gestión de Productos
+                    </a>
+
                 </div>
             @endif
 

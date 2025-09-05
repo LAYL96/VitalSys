@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -43,29 +44,31 @@ Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
 
         // Proveedores
         Route::resource('suppliers', SupplierController::class);
+
+        // Productos
+        Route::resource('products', ProductController::class);
     });
 
 // ===========================================
 // Rutas específicas para otros roles
 // ===========================================
-
 // Empleado
 Route::middleware(['auth', RoleMiddleware::class . ':Empleado'])->group(function () {
     Route::get('/empleado', function () {
         return "Bienvenido Empleado";
-    });
+    })->name('empleado.dashboard');
 });
 
 // Médico
 Route::middleware(['auth', RoleMiddleware::class . ':Médico'])->group(function () {
     Route::get('/medico', function () {
         return "Bienvenido Médico";
-    });
+    })->name('medico.dashboard');
 });
 
 // Cliente
 Route::middleware(['auth', RoleMiddleware::class . ':Cliente'])->group(function () {
     Route::get('/cliente', function () {
         return "Bienvenido Cliente";
-    });
+    })->name('cliente.dashboard');
 });

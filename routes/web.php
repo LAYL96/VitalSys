@@ -5,27 +5,34 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
-// Página de bienvenida
-Route::get('/', function () {
-    return view('welcome');
-});
+// ===========================================
+// Página de bienvenida / landing page
+// ===========================================
+Route::get('/', [PublicController::class, 'index'])->name('home');
 
+// ===========================================
 // Dashboard (requiere autenticación y email verificado)
+// ===========================================
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// ===========================================
 // Rutas de perfil (solo usuarios autenticados)
+// ===========================================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Autenticación generada por Laravel Breeze / Jetstream
+// ===========================================
+// Autenticación (Breeze / Jetstream)
+// ===========================================
 require __DIR__ . '/auth.php';
 
 // ===========================================
@@ -35,17 +42,9 @@ Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-
-        // Usuarios
         Route::resource('users', UserController::class);
-
-        // Categorías
         Route::resource('categories', CategoryController::class);
-
-        // Proveedores
         Route::resource('suppliers', SupplierController::class);
-
-        // Productos
         Route::resource('products', ProductController::class);
     });
 
@@ -72,3 +71,9 @@ Route::middleware(['auth', RoleMiddleware::class . ':Cliente'])->group(function 
         return "Bienvenido Cliente";
     })->name('cliente.dashboard');
 });
+
+// ===========================================
+// Productos públicos
+// ===========================================
+Route::get('/productos', [ProductController::class, 'publicIndex'])->name('products.public');
+Route::get('/productos/{product}', [ProductController::class, 'show'])->name('products.show');

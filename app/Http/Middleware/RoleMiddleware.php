@@ -16,16 +16,10 @@ class RoleMiddleware
      * @param  string|null  $role
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, $role = null)
+    public function handle($request, Closure $next, $role)
     {
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-
-        $user = Auth::user();
-
-        if ($role && $user->role->name != $role) {
-            abort(403, 'No tienes permisos para acceder a esta página.');
+        if (!auth()->check() || auth()->user()->role->name !== $role) {
+            return redirect()->route('home')->with('error', 'No tienes permiso para acceder a esta página.');
         }
 
         return $next($request);

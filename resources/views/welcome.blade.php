@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'VitalSys') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-100 font-sans">
@@ -13,7 +14,7 @@
     <!-- HEADER -->
     <header class="bg-white shadow py-4 px-6 flex justify-between items-center">
         <!-- Logo / Nombre -->
-        <a href="{{ url('/') }}" class="text-2xl font-bold text-gray-800">VitalSys</a>
+        <a href="{{ route('home') }}" class="text-2xl font-bold text-gray-800">VitalSys</a>
 
         <!-- Buscador -->
         <form action="{{ route('products.public') }}" method="GET" class="flex w-1/3 max-w-md">
@@ -23,17 +24,25 @@
                 class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700 transition">Buscar</button>
         </form>
 
-        <!-- Login / Registro -->
+        <!-- Login / Registro / Perfil / Dashboard -->
         <div class="space-x-2">
             @guest
+                <!-- Solo usuarios no autenticados -->
                 <a href="{{ route('login') }}"
                     class="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900 transition">Login</a>
                 <a href="{{ route('register') }}"
                     class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Registrarse</a>
             @endguest
+
             @auth
-                <a href="{{ route('dashboard') }}"
-                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Dashboard</a>
+                <!-- Solo usuarios autenticados -->
+                @if (auth()->user()->role->name === 'Administrador')
+                    <a href="{{ route('admin.dashboard') }}"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Panel Admin</a>
+                @else
+                    <a href="{{ route('profile.edit') }}"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Mi Perfil</a>
+                @endif
             @endauth
         </div>
     </header>
@@ -93,6 +102,22 @@
             &copy; {{ date('Y') }} VitalSys. Todos los derechos reservados.
         </div>
     </footer>
+
+    <!-- Mensajes Flash con SweetAlert -->
+    <script>
+        @if (session('welcome'))
+            Swal.fire({
+                icon: 'info',
+                title: '¡Bienvenido!',
+                text: '{{ session('welcome') }}',
+                confirmButtonColor: '#3085d6',
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                position: 'top-end'
+            });
+        @endif
+    </script>
 
 </body>
 

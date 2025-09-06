@@ -42,6 +42,10 @@ Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+        Route::get('/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('dashboard');
+
         Route::resource('users', UserController::class);
         Route::resource('categories', CategoryController::class);
         Route::resource('suppliers', SupplierController::class);

@@ -48,15 +48,25 @@ class AuthenticatedSessionController extends Controller
 
         switch ($roleName) {
             case 'Administrador':
-                return redirect()->route('admin.users.index');
+                return redirect()
+                    ->route('admin.dashboard')
+                    ->with('welcome', 'Hola ' . $user->name . ', bienvenido al panel de administrador!');
             case 'Empleado':
-                return redirect()->route('empleado');
+                return redirect()
+                    ->route('empleado')
+                    ->with('welcome', 'Hola ' . $user->name . ', bienvenido a tu panel de empleado!');
             case 'Médico':
-                return redirect()->route('medico');
+                return redirect()
+                    ->route('medico')
+                    ->with('welcome', 'Hola Dr. ' . $user->name . ', listo para atender a tus pacientes.');
             case 'Cliente':
-                return redirect()->route('cliente');
+                return redirect()
+                    ->route('home')
+                    ->with('welcome', 'Hola ' . $user->name . ', bienvenido a nuestra tienda en línea!');
             default:
-                return redirect()->route('dashboard');
+                return redirect()
+                    ->route('dashboard')
+                    ->with('welcome', 'Bienvenido de nuevo ' . $user->name . '!');
         }
     }
 

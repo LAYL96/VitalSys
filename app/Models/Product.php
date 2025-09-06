@@ -24,6 +24,11 @@ class Product extends Model
         'status',
     ];
 
+    // Esto asegura que expiration_date siempre sea un objeto Carbon
+    protected $casts = [
+        'expiration_date' => 'datetime',
+    ];
+
     // Relación con Category
     public function category()
     {

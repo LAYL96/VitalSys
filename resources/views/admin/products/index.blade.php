@@ -93,15 +93,11 @@
                                                 class="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
                                                 Editar
                                             </a>
-                                            <form action="{{ route('admin.products.destroy', $product->id) }}"
-                                                method="POST" class="delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button"
-                                                    class="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 delete-button">
-                                                    Eliminar
-                                                </button>
-                                            </form>
+                                            <button type="button"
+                                                class="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 delete-button"
+                                                data-id="{{ $product->id }}">
+                                                Eliminar
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -121,4 +117,51 @@
             </div>
         </div>
     </div>
+
+    <!-- Script de SweetAlert para eliminar productos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.dataset.id;
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¡Esta acción no se puede deshacer!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/admin/products/${productId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire('¡Eliminado!', data.message, 'success').then(
+                                () => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire('Error', 'No se pudo eliminar el producto',
+                                        'error');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire('Error', 'No se pudo eliminar el producto', 'error');
+                            });
+                    }
+                });
+            });
+        });
+    </script>
 </x-app-layout>

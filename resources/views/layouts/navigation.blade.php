@@ -1,6 +1,6 @@
 @php
     $user = Auth::user();
-    $role = $user->role->name ?? null; // null si no hay usuario logueado
+    $role = $user->role->name ?? null;
 @endphp
 
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
@@ -14,18 +14,19 @@
                 </a>
             </div>
 
-            <!-- Buscador (solo para público y usuarios) -->
-            <div class="flex-1 flex justify-center items-center px-2">
-                <form action="{{ route('products.public') }}" method="GET" class="w-full max-w-lg">
-                    <input type="text" name="search" placeholder="Buscar producto..."
-                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300">
-                </form>
-            </div>
+            <!-- Buscador (solo visible si NO es administrador) -->
+            @if (!$role || $role !== 'Administrador')
+                <div class="flex-1 flex justify-center items-center px-2">
+                    <form action="{{ route('products.public') }}" method="GET" class="w-full max-w-lg">
+                        <input type="text" name="search" placeholder="Buscar producto..."
+                            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300">
+                    </form>
+                </div>
+            @endif
 
             <!-- Links de login/registro o usuario autenticado -->
             <div class="flex items-center space-x-4">
                 @auth
-                    <!-- Usuario logueado -->
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button
@@ -67,7 +68,6 @@
                         </x-slot>
                     </x-dropdown>
                 @else
-                    <!-- Invitado -->
                     <a href="{{ route('login') }}"
                         class="px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700">Login</a>
                     <a href="{{ route('register') }}"

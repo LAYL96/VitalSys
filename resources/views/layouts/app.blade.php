@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Librería SweetAlert2 para alertas -->
+    <!-- Librería SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Scripts de Laravel + Tailwind -->
@@ -22,9 +22,9 @@
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
         <!-- Barra de navegación -->
-        @include('layouts.navigation')
+        @include('layouts.navigation', ['hideSearch' => $hideSearch ?? false])
 
-        <!-- Encabezado dinámico (solo se muestra si la vista define $header) -->
+        <!-- Encabezado dinámico -->
         @isset($header)
             <header class="bg-white dark:bg-gray-800 shadow">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -33,17 +33,14 @@
             </header>
         @endisset
 
-        <!-- Contenido principal de cada página -->
+        <!-- Contenido principal -->
         <main>
             {{ $slot }}
         </main>
     </div>
 
-    <!-- ============================= -->
     <!-- Mensajes Flash con SweetAlert -->
-    <!-- ============================= -->
     <script>
-        // Mensaje de error
         @if (session('error'))
             Swal.fire({
                 icon: 'error',
@@ -53,7 +50,6 @@
             });
         @endif
 
-        // Mensaje de éxito
         @if (session('success'))
             Swal.fire({
                 icon: 'success',
@@ -63,16 +59,15 @@
             });
         @endif
 
-        // Mensaje de bienvenida al iniciar sesión
         @if (session('welcome'))
             Swal.fire({
                 icon: 'info',
                 title: '¡Bienvenido!',
                 text: '{{ session('welcome') }}',
                 confirmButtonColor: '#3085d6',
-                timer: 3000, // se cierra en 3 segundos automáticamente
+                timer: 3000,
                 timerProgressBar: true,
-                toast: true, // estilo notificación flotante
+                toast: true,
                 position: 'top-end'
             });
         @endif

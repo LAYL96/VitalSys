@@ -20,15 +20,15 @@
                     </div>
 
                     <div>
-                        <strong>Categoría:</strong> {{ $product->category?->name ?? '-' }}
+                        <strong>Categoría:</strong> {{ $product->category?->name ?? 'Sin categoría' }}
                     </div>
 
                     <div>
-                        <strong>Proveedor:</strong> {{ $product->supplier?->name ?? '-' }}
+                        <strong>Proveedor:</strong> {{ $product->supplier?->name ?? 'Sin proveedor' }}
                     </div>
 
                     <div>
-                        <strong>Precio:</strong> {{ number_format($product->price, 2) }}
+                        <strong>Precio:</strong> ${{ number_format($product->price, 2, '.', ',') }}
                     </div>
 
                     <div>
@@ -44,29 +44,30 @@
                     </div>
 
                     <div>
-                        <strong>Fecha de caducidad:</strong> {{ $product->expiration_date?->format('Y-m-d') ?? '-' }}
+                        <strong>Fecha de caducidad:</strong>
+                        {{ $product->expiration_date?->format('d/m/Y') ?? 'Sin fecha' }}
                     </div>
 
                     <div class="sm:col-span-2">
                         <strong>Descripción:</strong>
-                        <p>{{ $product->description ?? '-' }}</p>
+                        <p>{{ $product->description ?? 'Sin descripción' }}</p>
                     </div>
 
                     <div class="sm:col-span-2">
                         <strong>Imagen:</strong><br>
                         @if ($product->image)
                             <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
-                                class="w-48 h-48 object-cover rounded mt-2">
+                                class="w-48 h-48 object-cover rounded mt-2 shadow">
                         @else
-                            <p class="text-sm text-gray-600">No hay imagen</p>
+                            <p class="text-sm text-gray-600">No hay imagen disponible</p>
                         @endif
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-6">
                     <a href="{{ route('admin.products.index') }}"
                         class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
-                        Volver
+                        Volver al listado de productos
                     </a>
                 </div>
 

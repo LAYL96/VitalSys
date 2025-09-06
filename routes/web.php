@@ -3,7 +3,8 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicController;
 use App\Http\Middleware\RoleMiddleware;
@@ -42,6 +43,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
         })->name('dashboard');
@@ -49,7 +51,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
         Route::resource('users', UserController::class);
         Route::resource('categories', CategoryController::class);
         Route::resource('suppliers', SupplierController::class);
-        Route::resource('products', ProductController::class);
+        Route::resource('products', AdminProductController::class); // Admin ProductController
     });
 
 // ===========================================
@@ -79,5 +81,5 @@ Route::middleware(['auth', RoleMiddleware::class . ':Cliente'])->group(function 
 // ===========================================
 // Productos públicos
 // ===========================================
-Route::get('/productos', [ProductController::class, 'publicIndex'])->name('products.public');
-Route::get('/productos/{product}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/productos', [PublicProductController::class, 'publicIndex'])->name('products.public');
+Route::get('/productos/{product}', [PublicProductController::class, 'show'])->name('products.show');

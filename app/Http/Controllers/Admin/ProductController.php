@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
@@ -125,6 +126,10 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
-        return redirect()->route('admin.products.index')->with('success', 'Producto eliminado correctamente.');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto eliminado correctamente.'
+        ]);
     }
 }

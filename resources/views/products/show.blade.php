@@ -1,9 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <a href="{{ url('/') }}" class="text-xl font-bold text-gray-800 dark:text-gray-200">VitalSys</a>
-            <a href="{{ route('products.public') }}"
-                class="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900 transition">Volver a productos</a>
+        <div class="flex justify-start items-center">
+            <a href="{{ route('home') }}"
+                class="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900 transition">
+                Volver a productos
+            </a>
         </div>
     </x-slot>
 
@@ -16,7 +17,8 @@
             <div class="p-6">
                 <h2 class="text-2xl font-bold mb-4">{{ $product->name }}</h2>
                 <p class="text-gray-700 dark:text-gray-300 mb-4">{{ $product->description }}</p>
-                <p class="font-bold text-blue-600 text-xl mb-2">Precio: ${{ $product->price }}</p>
+                <p class="font-bold text-blue-600 text-xl mb-2">Precio:
+                    Q{{ number_format($product->price, 2, '.', ',') }}</p>
                 <p class="text-gray-600 dark:text-gray-400 mb-2">Stock disponible: {{ $product->stock }}</p>
                 <p class="text-gray-600 dark:text-gray-400 mb-2">Categoría:
                     {{ $product->category?->name ?? 'Sin categoría' }}</p>

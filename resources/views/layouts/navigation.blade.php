@@ -31,33 +31,29 @@
                         <x-slot name="trigger">
                             <button
                                 class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300">
-                                <div>{{ $user->name }}</div>
-                                <div class="ml-1">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </div>
+                                {{ $user->name }}
+                                <svg class="ml-2 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
                             </button>
                         </x-slot>
 
                         <x-slot name="content">
-                            @if ($role)
+                            @if ($role && $role !== 'Cliente')
                                 @if ($role === 'Administrador')
                                     <x-dropdown-link :href="route('admin.users.index')">Administración</x-dropdown-link>
                                 @elseif ($role === 'Empleado')
                                     <x-dropdown-link :href="route('empleado.dashboard')">Inventario</x-dropdown-link>
                                 @elseif ($role === 'Médico')
                                     <x-dropdown-link :href="route('medico.dashboard')">Citas Médicas</x-dropdown-link>
-                                @elseif ($role === 'Cliente')
-                                    <x-dropdown-link :href="route('cliente.dashboard')">Mis Citas</x-dropdown-link>
                                 @endif
                             @endif
 
+                            <!-- Perfil y Cerrar sesión para todos los roles -->
                             <x-dropdown-link :href="route('profile.edit')">Perfil</x-dropdown-link>
-
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
@@ -95,17 +91,16 @@
     <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden px-4 pb-3">
         @auth
             <div class="pt-2 pb-3 space-y-1">
-                @if ($role)
+                @if ($role && $role !== 'Cliente')
                     @if ($role === 'Administrador')
                         <x-responsive-nav-link :href="route('admin.users.index')">Administración</x-responsive-nav-link>
                     @elseif ($role === 'Empleado')
                         <x-responsive-nav-link :href="route('empleado.dashboard')">Inventario</x-responsive-nav-link>
                     @elseif ($role === 'Médico')
                         <x-responsive-nav-link :href="route('medico.dashboard')">Citas Médicas</x-responsive-nav-link>
-                    @elseif ($role === 'Cliente')
-                        <x-responsive-nav-link :href="route('cliente.dashboard')">Mis Citas</x-responsive-nav-link>
                     @endif
                 @endif
+
                 <x-responsive-nav-link :href="route('profile.edit')">Perfil</x-responsive-nav-link>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -44,14 +45,12 @@ Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('users', UserController::class);
         Route::resource('categories', CategoryController::class);
         Route::resource('suppliers', SupplierController::class);
-        Route::resource('products', AdminProductController::class); // Admin ProductController
+        Route::resource('products', AdminProductController::class);
     });
 
 // ===========================================

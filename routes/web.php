@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicController;
@@ -52,6 +53,9 @@ Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
         Route::resource('suppliers', SupplierController::class);
         Route::resource('products', AdminProductController::class);
     });
+
+Route::get('/reports/inventory/pdf', [ReportController::class, 'inventoryPdf'])
+    ->name('admin.reports.inventory.pdf');
 
 // ===========================================
 // Rutas específicas para otros roles

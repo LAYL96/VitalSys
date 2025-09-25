@@ -13,11 +13,28 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Obtener productos con stock bajo
+        // Productos con stock bajo
         $lowStockProducts = Product::whereColumn('stock', '<=', 'min_stock')
             ->orderBy('stock', 'asc')
             ->get();
 
-        return view('admin.dashboard', compact('lowStockProducts'));
+        // Productos próximos a vencer en 30 días
+        $expiringProducts = $this->getExpiringProducts(30);
+
+        return view('admin.dashboard', compact('lowStockProducts', 'expiringProducts'));
+    }
+
+    /**
+     * Obtener productos próximos a vencer (30 días antes).
+     */
+    private function getExpiringProducts($days = 30)
+    {
+        $today = now();
+        $thresholdDate = $today->copy()->addDays($days);
+
+        return Product::whereNotNull('expiration_date')
+            ->whereDate('expiration_date', '<=', $thresholdDate)
+            ->orderBy('expiration_date', 'asc')
+            ->get();
     }
 }

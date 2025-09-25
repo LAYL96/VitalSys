@@ -24,10 +24,15 @@
                 class="p-4 bg-red-600 text-white rounded-lg text-center hover:bg-red-700 transition">
                 Gestionar Productos
             </a>
+
+            <a href="{{ route('admin.reports.inventory.pdf') }}"
+                class="p-4 bg-purple-600 text-white rounded-lg text-center hover:bg-purple-700 transition">
+                Descargar Reporte de Inventario (PDF)
+            </a>
         </div>
 
         <!-- ALERTAS DE STOCK BAJO -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
             <h3 class="text-lg font-bold text-red-600 mb-4">Productos con stock bajo</h3>
             @if ($lowStockProducts->isNotEmpty())
                 <ul class="list-disc pl-6 text-gray-800 dark:text-gray-200">
@@ -39,6 +44,22 @@
                 </ul>
             @else
                 <p class="text-green-600 dark:text-green-400">No hay productos con stock bajo.</p>
+            @endif
+        </div>
+
+        <!-- ALERTAS DE PRODUCTOS PRÓXIMOS A VENCER -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <h3 class="text-lg font-bold text-yellow-600 mb-4">Productos próximos a vencer (30 días)</h3>
+            @if ($expiringProducts->isNotEmpty())
+                <ul class="list-disc pl-6 text-gray-800 dark:text-gray-200">
+                    @foreach ($expiringProducts as $product)
+                        <li class="mb-1">
+                            {{ $product->name }} - Fecha de caducidad: {{ $product->expiration_date->format('d/m/Y') }}
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-green-600 dark:text-green-400">No hay productos próximos a vencer.</p>
             @endif
         </div>
     </div>

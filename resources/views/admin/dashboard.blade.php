@@ -29,6 +29,11 @@
                 class="p-4 bg-purple-600 text-white rounded-lg text-center hover:bg-purple-700 transition">
                 Descargar Reporte de Inventario (PDF)
             </a>
+
+            <a href="{{ route('admin.reports.inventory.excel') }}"
+                class="p-4 bg-green-600 text-white rounded-lg text-center hover:bg-green-700 transition">
+                Descargar Inventario (Excel)
+            </a>
         </div>
 
         <!-- ALERTAS DE STOCK BAJO -->

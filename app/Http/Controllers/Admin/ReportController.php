@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ProductsExport;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -17,5 +19,10 @@ class ReportController extends Controller
             ->setPaper('a4', 'landscape');
 
         return $pdf->download('reporte_inventario.pdf');
+    }
+
+    public function exportInventoryExcel()
+    {
+        return Excel::download(new ProductsExport, 'inventario.xlsx');
     }
 }

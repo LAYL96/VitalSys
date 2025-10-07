@@ -52,10 +52,15 @@ Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
         Route::resource('categories', CategoryController::class);
         Route::resource('suppliers', SupplierController::class);
         Route::resource('products', AdminProductController::class);
+
+        Route::get('/reports/inventory/pdf', [ReportController::class, 'inventoryPdf'])
+            ->name('reports.inventory.pdf');
+
+        Route::get('/reports/inventory/excel', [ReportController::class, 'exportInventoryExcel'])
+            ->name('reports.inventory.excel');
     });
 
-Route::get('/reports/inventory/pdf', [ReportController::class, 'inventoryPdf'])
-    ->name('admin.reports.inventory.pdf');
+
 
 // ===========================================
 // Rutas específicas para otros roles

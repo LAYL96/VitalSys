@@ -84,9 +84,7 @@ Route::middleware(['auth', 'role:Médico'])
     ->group(function () {
         Route::get('/dashboard', [MedicoDashboardController::class, 'index'])
             ->name('dashboard');
-
-        // Actualizar estado de la cita (completar o cancelar)
-        Route::patch('/appointments/{appointment}/status', [MedicoDashboardController::class, 'updateStatus'])
+        Route::patch('/appointments/{id}/status', [MedicoDashboardController::class, 'updateStatus'])
             ->name('appointments.updateStatus');
     });
 

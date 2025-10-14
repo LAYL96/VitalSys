@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Medico\MedicoDashboardController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicController;
@@ -73,11 +74,12 @@ Route::middleware(['auth', RoleMiddleware::class . ':Empleado'])->group(function
 });
 
 // Médico
-Route::middleware(['auth', RoleMiddleware::class . ':Médico'])->group(function () {
-    Route::get('/medico', function () {
-        return "Bienvenido Médico";
-    })->name('medico.dashboard');
-});
+Route::middleware(['auth', RoleMiddleware::class . ':Medico'])
+    ->prefix('medico')
+    ->name('medico.')
+    ->group(function () {
+        Route::get('/dashboard', [MedicoDashboardController::class, 'index'])->name('dashboard');
+    });
 
 // Cliente
 Route::middleware(['auth', RoleMiddleware::class . ':Cliente'])->group(function () {

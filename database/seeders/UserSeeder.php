@@ -2,23 +2,44 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@farmacia.com',
+        // 🔹 Administrador
+        $admin = User::create([
+            'name' => 'Administrador General',
+            'email' => 'admin@vitalsys.com',
             'password' => Hash::make('admin123'),
-            'role_id' => 1 // ID del rol Administrador
         ]);
+        $admin->assignRole('Administrador');
+
+        // 🔹 Empleado
+        $empleado = User::create([
+            'name' => 'Empleado Ventas',
+            'email' => 'empleado@vitalsys.com',
+            'password' => Hash::make('empleado123'),
+        ]);
+        $empleado->assignRole('Empleado');
+
+        // 🔹 Médico
+        $medico = User::create([
+            'name' => 'Dr. Luis Morales',
+            'email' => 'medico@vitalsys.com',
+            'password' => Hash::make('medico123'),
+        ]);
+        $medico->assignRole('Médico');
+
+        // 🔹 Cliente
+        $cliente = User::create([
+            'name' => 'Cliente Ejemplo',
+            'email' => 'cliente@vitalsys.com',
+            'password' => Hash::make('cliente123'),
+        ]);
+        $cliente->assignRole('Cliente');
     }
 }

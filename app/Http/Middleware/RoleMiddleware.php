@@ -16,10 +16,10 @@ class RoleMiddleware
      * @param  string|null  $role
      * @return mixed
      */
-    public function handle($request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, $role)
     {
-        if (!auth()->check() || auth()->user()->role->name !== $role) {
-            return redirect()->route('home')->with('error', 'No tienes permiso para acceder a esta página.');
+        if (!Auth::check() || !Auth::user()->hasRole($role)) {
+            abort(403, 'Acceso denegado');
         }
 
         return $next($request);

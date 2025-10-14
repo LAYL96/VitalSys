@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
+use Spatie\Permission\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,9 +13,19 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::create(['name' => 'Administrador', 'guard_name' => 'web']);
-        Role::create(['name' => 'Empleado', 'guard_name' => 'web']);
-        Role::create(['name' => 'Médico', 'guard_name' => 'web']);
-        Role::create(['name' => 'Cliente', 'guard_name' => 'web']);
+        // Lista de roles principales de la aplicación
+        $roles = [
+            'Administrador',
+            'Empleado',
+            'Médico',
+            'Cliente',
+        ];
+
+        // Crear roles si no existen
+        foreach ($roles as $roleName) {
+            Role::firstOrCreate(
+                ['name' => $roleName, 'guard_name' => 'web']
+            );
+        }
     }
 }

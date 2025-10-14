@@ -10,23 +10,22 @@ use App\Http\Controllers\Medico\MedicoDashboardController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicController;
-use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
 // ===========================================
-// Página de bienvenida / landing page
+// Página de inicio pública (landing page)
 // ===========================================
 Route::get('/', [PublicController::class, 'index'])->name('home');
 
 // ===========================================
-// Dashboard (requiere autenticación y email verificado)
+// Dashboard general (solo autenticados y verificados)
 // ===========================================
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // ===========================================
-// Rutas de perfil (solo usuarios autenticados)
+// Gestión de perfil (solo usuarios autenticados)
 // ===========================================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -35,25 +34,29 @@ Route::middleware('auth')->group(function () {
 });
 
 // ===========================================
-// Autenticación (Breeze / Jetstream)
+// Autenticación predeterminada (Laravel Breeze / Jetstream)
 // ===========================================
 require __DIR__ . '/auth.php';
 
 // ===========================================
-// Rutas de administración (solo Administrador)
+// Panel de Administración (solo rol Administrador)
 // ===========================================
-Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
+// Uso del middleware 'role' provisto por Spatie Laravel Permission
+Route::middleware(['auth', 'role:Administrador'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
 
+        // Dashboard del administrador con alertas de stock
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+        // Rutas CRUD de gestión interna
         Route::resource('users', UserController::class);
         Route::resource('categories', CategoryController::class);
         Route::resource('suppliers', SupplierController::class);
         Route::resource('products', AdminProductController::class);
 
+        // Reportes de inventario
         Route::get('/reports/inventory/pdf', [ReportController::class, 'inventoryPdf'])
             ->name('reports.inventory.pdf');
 
@@ -61,35 +64,44 @@ Route::middleware(['auth', RoleMiddleware::class . ':Administrador'])
             ->name('reports.inventory.excel');
     });
 
-
-
 // ===========================================
-// Rutas específicas para otros roles
+// Panel del Empleado
 // ===========================================
-// Empleado
-Route::middleware(['auth', RoleMiddleware::class . ':Empleado'])->group(function () {
+// Acceso restringido al rol "Empleado"
+Route::middleware(['auth', 'role:Empleado'])->group(function () {
     Route::get('/empleado', function () {
         return "Bienvenido Empleado";
     })->name('empleado.dashboard');
 });
 
-// Médico
-Route::middleware(['auth', RoleMiddleware::class . ':Medico'])
+// ===========================================
+// Panel del Médico
+// ===========================================
+// Acceso restringido al rol "Médico"
+Route::middleware(['auth', 'role:Médico'])
     ->prefix('medico')
     ->name('medico.')
     ->group(function () {
-        Route::get('/dashboard', [MedicoDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [MedicoDashboardController::class, 'index'])
+            ->name('dashboard');
+
+        // Actualizar estado de la cita (completar o cancelar)
+        Route::patch('/appointments/{appointment}/status', [MedicoDashboardController::class, 'updateStatus'])
+            ->name('appointments.updateStatus');
     });
 
-// Cliente
-Route::middleware(['auth', RoleMiddleware::class . ':Cliente'])->group(function () {
+// ===========================================
+// Panel del Cliente
+// ===========================================
+// Acceso restringido al rol "Cliente"
+Route::middleware(['auth', 'role:Cliente'])->group(function () {
     Route::get('/cliente', function () {
         return "Bienvenido Cliente";
     })->name('cliente.dashboard');
 });
 
 // ===========================================
-// Productos públicos
+// Productos públicos (sin autenticación)
 // ===========================================
 Route::get('/productos', [PublicProductController::class, 'publicIndex'])->name('products.public');
 Route::get('/productos/{product}', [PublicProductController::class, 'show'])->name('products.show');

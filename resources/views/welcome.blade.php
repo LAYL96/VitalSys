@@ -38,8 +38,10 @@
                 @auth
                     @php
                         $user = auth()->user();
-                        $role = $user->role->name ?? null;
+                        // SPATIE: obtener primer rol asignado
+                        $role = $user?->getRoleNames()->first();
                     @endphp
+
                     <div class="relative" @click.away="openDropdown = false">
                         <button @click="openDropdown = !openDropdown"
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none">
@@ -52,18 +54,21 @@
                         </button>
 
                         <div x-show="openDropdown" x-transition
-                            class="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-50">
-                            @if ($role && $role !== 'Cliente')
-                                @if ($role === 'Administrador')
-                                    <a href="{{ route('admin.dashboard') }}"
-                                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Panel Admin</a>
-                                @elseif ($role === 'Empleado')
-                                    <a href="{{ route('empleado.dashboard') }}"
-                                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Inventario</a>
-                                @elseif ($role === 'Médico')
-                                    <a href="{{ route('medico.dashboard') }}"
-                                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Citas Médicas</a>
-                                @endif
+                            class="absolute right-0 mt-2 w-56 bg-white border rounded-md shadow-lg z-50 py-1">
+
+                            {{-- Enlaces por rol (Spatie) --}}
+                            @if ($role === 'Administrador')
+                                <a href="{{ route('admin.dashboard') }}"
+                                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Panel Admin</a>
+                            @elseif ($role === 'Empleado')
+                                <a href="{{ route('empleado.dashboard') }}"
+                                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Inventario</a>
+                            @elseif ($role === 'Médico')
+                                <a href="{{ route('medico.dashboard') }}"
+                                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Citas Médicas</a>
+                            @elseif ($role === 'Cliente')
+                                <a href="{{ route('cliente.appointments.index') }}"
+                                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Mis Citas Médicas</a>
                             @endif
 
                             <a href="{{ route('profile.edit') }}"
@@ -112,17 +117,18 @@
             @endguest
 
             @auth
-                @if ($role && $role !== 'Cliente')
-                    @if ($role === 'Administrador')
-                        <a href="{{ route('admin.dashboard') }}"
-                            class="block px-4 py-2 text-gray-700 rounded hover:bg-gray-100">Panel Admin</a>
-                    @elseif ($role === 'Empleado')
-                        <a href="{{ route('empleado.dashboard') }}"
-                            class="block px-4 py-2 text-gray-700 rounded hover:bg-gray-100">Inventario</a>
-                    @elseif ($role === 'Médico')
-                        <a href="{{ route('medico.dashboard') }}"
-                            class="block px-4 py-2 text-gray-700 rounded hover:bg-gray-100">Citas Médicas</a>
-                    @endif
+                @if ($role === 'Administrador')
+                    <a href="{{ route('admin.dashboard') }}"
+                        class="block px-4 py-2 text-gray-700 rounded hover:bg-gray-100">Panel Admin</a>
+                @elseif ($role === 'Empleado')
+                    <a href="{{ route('empleado.dashboard') }}"
+                        class="block px-4 py-2 text-gray-700 rounded hover:bg-gray-100">Inventario</a>
+                @elseif ($role === 'Médico')
+                    <a href="{{ route('medico.dashboard') }}"
+                        class="block px-4 py-2 text-gray-700 rounded hover:bg-gray-100">Citas Médicas</a>
+                @elseif ($role === 'Cliente')
+                    <a href="{{ route('cliente.appointments.index') }}"
+                        class="block px-4 py-2 text-gray-700 rounded hover:bg-gray-100">Mis Citas Médicas</a>
                 @endif
 
                 <a href="{{ route('profile.edit') }}"
@@ -157,7 +163,7 @@
         <div class="absolute inset-0 bg-black opacity-10"></div>
     </section>
 
-    <!-- PRODUCTOS DESTACADOS -->
+    <!-- PRODUCTOS DISPONIBLES -->
     <main class="max-w-7xl mx-auto py-12 px-6">
         <h2 class="text-3xl font-semibold mb-8 text-center">Productos Disponibles</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

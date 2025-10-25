@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Cliente\ClientAppointmentController;
 use App\Http\Controllers\Medico\MedicoDashboardController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
@@ -86,18 +87,41 @@ Route::middleware(['auth', 'role:Médico'])
             ->name('dashboard');
         Route::patch('/appointments/{id}/status', [MedicoDashboardController::class, 'updateStatus'])
             ->name('appointments.updateStatus');
+
+        // CRUD de pacientes
+        Route::resource('patients', \App\Http\Controllers\Medico\PatientController::class);
     });
 
 // ===========================================
 // Panel del Cliente
 // ===========================================
 // Acceso restringido al rol "Cliente"
-Route::middleware(['auth', 'role:Cliente'])->group(function () {
-    Route::get('/cliente', function () {
-        return "Bienvenido Cliente";
-    })->name('cliente.dashboard');
-});
+Route::middleware(['auth', 'role:Cliente'])
+    ->prefix('cliente')
+    ->name('cliente.')
+    ->group(function () {
 
+        // Dashboard básico del cliente
+        Route::get('/', function () {
+            return view('cliente.dashboard');
+        })->name('dashboard');
+
+        // ===========================================
+        // Gestión de Citas Médicas del Cliente
+        // ===========================================
+
+        // Listar citas del cliente autenticado
+        Route::get('/citas', [ClientAppointmentController::class, 'index'])
+            ->name('appointments.index');
+
+        // Formulario para crear una nueva cita
+        Route::get('/citas/nueva', [ClientAppointmentController::class, 'create'])
+            ->name('appointments.create');
+
+        // Guardar la nueva cita
+        Route::post('/citas', [ClientAppointmentController::class, 'store'])
+            ->name('appointments.store');
+    });
 // ===========================================
 // Productos públicos (sin autenticación)
 // ===========================================

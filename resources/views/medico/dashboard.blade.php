@@ -1,8 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Panel del Médico - Dr. {{ Auth::user()->name }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                Panel del Médico - Dr. {{ Auth::user()->name }}
+            </h2>
+
+            <!-- Botón para ver pacientes -->
+            <a href="{{ route('medico.patients.index') }}"
+                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 100 7.292M16 12v2m0 4h.01M8 12v2m0 4h.01M12 14v6" />
+                </svg>
+                Ver Pacientes
+            </a>
+        </div>
     </x-slot>
 
     <div class="py-10 max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">

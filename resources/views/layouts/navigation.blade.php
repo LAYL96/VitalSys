@@ -1,21 +1,21 @@
 @php
     use Illuminate\Support\Facades\Auth;
     $user = Auth::user();
-    $role = $user?->getRoleNames()->first(); // Obtenemos el rol con Spatie
+    $role = $user?->getRoleNames()->first(); // Obtenemos el rol del usuario con Spatie
 @endphp
 
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
 
-            <!-- Logo -->
+            <!-- LOGO / NOMBRE DEL SISTEMA -->
             <div class="flex items-center">
                 <a href="{{ route('home') }}" class="font-bold text-xl text-gray-800 dark:text-gray-200">
                     VitalSys
                 </a>
             </div>
 
-            <!-- Buscador (solo visible si NO es Administrador) -->
+            <!-- BUSCADOR (solo visible si el rol NO es Administrador) -->
             @if (!$role || $role !== 'Administrador')
                 <div class="flex-1 flex justify-center items-center px-2">
                     <form action="{{ route('products.public') }}" method="GET" class="w-full max-w-lg">
@@ -25,14 +25,15 @@
                 </div>
             @endif
 
-            <!-- Menú derecho -->
+            <!-- MENÚ DERECHO (usuario logueado o no) -->
             <div class="flex items-center space-x-4">
                 @auth
                     <x-dropdown align="right" width="48">
+                        <!-- BOTÓN DESPLEGABLE CON NOMBRE DE USUARIO -->
                         <x-slot name="trigger">
                             <button
                                 class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300">
-                                <!-- Mostrar nombre según rol -->
+                                <!-- Mostrar "Dr." si el usuario es médico -->
                                 <div>
                                     @if ($role === 'Médico')
                                         Dr. {{ $user->name }}
@@ -40,6 +41,7 @@
                                         {{ $user->name }}
                                     @endif
                                 </div>
+
                                 <div class="ml-1">
                                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20">
@@ -51,41 +53,55 @@
                             </button>
                         </x-slot>
 
+                        <!-- CONTENIDO DEL MENÚ -->
                         <x-slot name="content">
-                            <!-- Opciones dinámicas según rol -->
+
+                            <!-- 🔹 Opciones dinámicas según el rol -->
                             @switch($role)
                                 @case('Administrador')
-                                    <x-dropdown-link :href="route('admin.dashboard')">Panel de Administración</x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.dashboard')">
+                                        Panel de Administración
+                                    </x-dropdown-link>
                                 @break
 
                                 @case('Empleado')
-                                    <x-dropdown-link :href="route('empleado.dashboard')">Gestión de Inventario</x-dropdown-link>
+                                    <x-dropdown-link :href="route('empleado.dashboard')">
+                                        Gestión de Inventario
+                                    </x-dropdown-link>
                                 @break
 
                                 @case('Médico')
-                                    <x-dropdown-link :href="route('medico.dashboard')">Mis Citas</x-dropdown-link>
+                                    <x-dropdown-link :href="route('medico.dashboard')">
+                                        Panel del Médico
+                                    </x-dropdown-link>
                                 @break
 
                                 @case('Cliente')
-                                    <x-dropdown-link :href="route('cliente.dashboard')">Mis Citas Médicas</x-dropdown-link>
+                                    <!-- 🔹 Enlace especial para el cliente: acceso directo a sus citas -->
+                                    <x-dropdown-link :href="route('cliente.appointments.index')">
+                                        Mis Citas Médicas
+                                    </x-dropdown-link>
                                 @break
                             @endswitch
 
-                            <!-- Perfil -->
-                            <x-dropdown-link :href="route('profile.edit')">Perfil</x-dropdown-link>
+                            <!-- 🔹 Perfil del usuario -->
+                            <x-dropdown-link :href="route('profile.edit')">
+                                Mi Perfil
+                            </x-dropdown-link>
 
-                            <!-- Cerrar sesión -->
+                            <!-- 🔹 Cerrar sesión -->
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault(); this.closest('form').submit();">
+                                    onclick="event.preventDefault();
+                                        this.closest('form').submit();">
                                     Cerrar sesión
                                 </x-dropdown-link>
                             </form>
                         </x-slot>
                     </x-dropdown>
                 @else
-                    <!-- Si no está logueado -->
+                    <!-- SI EL USUARIO NO ESTÁ LOGUEADO -->
                     <a href="{{ route('login') }}"
                         class="px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700">Login</a>
                     <a href="{{ route('register') }}"

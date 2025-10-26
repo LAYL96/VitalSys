@@ -5,22 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Appointment extends Model
+class MedicalConsultation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'patient_id',
+        'appointment_id',
         'doctor_id',
-        'date',
-        'time',
-        'status',
+        'patient_id',
+        'diagnosis',
+        'prescription',
         'notes',
     ];
 
-    public function patient()
+    public function appointment()
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(Appointment::class);
     }
 
     public function doctor()
@@ -28,8 +28,8 @@ class Appointment extends Model
         return $this->belongsTo(User::class, 'doctor_id');
     }
 
-    public function consultation()
+    public function patient()
     {
-        return $this->hasOne(\App\Models\MedicalConsultation::class, 'appointment_id');
+        return $this->belongsTo(Patient::class);
     }
 }

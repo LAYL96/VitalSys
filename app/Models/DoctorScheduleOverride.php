@@ -5,31 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Appointment extends Model
+class DoctorScheduleOverride extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'patient_id',
         'doctor_id',
         'date',
-        'time',
-        'status',
-        'notes',
+        'start_time',
+        'end_time',
+        'slot_minutes',
+        'active',
+        'note',
     ];
-
-    public function patient()
-    {
-        return $this->belongsTo(Patient::class);
-    }
 
     public function doctor()
     {
         return $this->belongsTo(User::class, 'doctor_id');
     }
 
-    public function consultation()
+    public function replacementDoctor()
     {
-        return $this->hasOne(\App\Models\MedicalConsultation::class, 'appointment_id');
+        return $this->belongsTo(User::class, 'replacement_doctor_id');
     }
 }

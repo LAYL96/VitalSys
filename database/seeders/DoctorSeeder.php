@@ -10,31 +10,37 @@ class DoctorSeeder extends Seeder
 {
     public function run(): void
     {
-        // Crear 3 médicos con el rol "Médico"
         $doctors = [
             [
-                'name' => 'Dr. Carlos Pérez',
-                'email' => 'carlos.perez@vitalsys.com',
+                'name' => 'Dra. Sábado',
+                'email' => 'sabado@vitalsys.com',
             ],
             [
-                'name' => 'Dra. Ana López',
-                'email' => 'ana.lopez@vitalsys.com',
+                'name' => 'Dr. Domingo',
+                'email' => 'domingo@vitalsys.com',
             ],
             [
-                'name' => 'Dr. Luis Morales',
-                'email' => 'luis.morales@vitalsys.com',
+                'name' => 'Dr. Semana',
+                'email' => 'semana@vitalsys.com',
+            ],
+            [
+                'name' => 'Dra. Cobertura',
+                'email' => 'cobertura@vitalsys.com',
             ],
         ];
 
         foreach ($doctors as $doctor) {
-            $user = User::create([
-                'name' => $doctor['name'],
-                'email' => $doctor['email'],
-                'password' => Hash::make('12345678'),
-            ]);
 
-            // Asignar rol de Médico
-            $user->assignRole('Médico');
+            $user = User::firstOrCreate(
+                ['email' => $doctor['email']],
+                [
+                    'name'     => $doctor['name'],
+                    'password' => Hash::make('password123'),
+                ]
+            );
+
+            // Asignar rol Médico usando Spatie
+            $user->syncRoles(['Médico']);
         }
     }
 }

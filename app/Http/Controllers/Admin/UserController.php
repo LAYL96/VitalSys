@@ -9,107 +9,128 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-
-
-    public function index()
+    /**
+     * Listado con filtros opcionales: q (texto) y role (nombre del rol).
+     * Eager-load de roles para evitar N+1.
+     */
+    public function index(Request $request)
     {
-        $users = User::with('role')->paginate(10); // Trae 10 usuarios por página
-        return view('admin.users.index', compact('users'));
+        $query = User::query()->with('roles');
+
+        // Filtro por texto (nombre o email)
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%");
+            });
+        }
+
+        // Filtro por rol (Spatie). Debe ser NOMBRE del rol.
+        if ($request->filled('role')) {
+            $query->role($request->input('role'));
+        }
+
+        $users = $query->orderBy('name')->paginate(10)->withQueryString();
+
+        // Para combos/filtros en la vista (puedes usar name o id según prefieras)
+        $allRoles = Role::orderBy('name')->pluck('name', 'id'); // ['id' => 'name']
+
+        return view('admin.users.index', compact('users', 'allRoles'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Form de creación: enviamos lista de roles.
      */
     public function create()
     {
-        // Traemos todos los roles disponibles para mostrarlos en el select
-        $roles = Role::all();
-
+        $roles = Role::orderBy('name')->get(); // id + name
         return view('admin.users.create', compact('roles'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Crear usuario y asignar rol con Spatie.
+     * Acepta role_id desde el formulario y lo convierte a nombre.
      */
     public function store(Request $request)
     {
-        // Validar los datos recibidos del formulario
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed', // Usar password_confirmation en el formulario
-            'role_id' => 'required|exists:roles,id',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'role_id'  => 'required|exists:roles,id',
         ]);
 
-        // Crear el usuario
+        $role = Role::findOrFail($request->role_id); // recupera el rol elegido
+
         $user = new User();
-        $user->name = $request->name;
+        $user->name  = $request->name;
         $user->email = $request->email;
-        $user->password = bcrypt($request->password); // Hashear la contraseña
-        $user->role_id = $request->role_id;
+        $user->password = bcrypt($request->password);
+        // ⚠️ No uses $user->role_id = ... con Spatie
         $user->save();
 
-        return redirect()->route('admin.users.index')->with('success', 'Usuario creado correctamente.');
+        // Asignar rol por NOMBRE (Spatie)
+        $user->assignRole($role->name);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Usuario creado correctamente.');
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * Editar: enviamos usuario y lista de roles.
      */
     public function edit(User $user)
     {
-        // Obtener todos los roles disponibles para mostrarlos en el select
-        $roles = Role::all();
-
-        // Retornar la vista edit.blade.php con los datos del usuario y los roles
+        $roles = Role::orderBy('name')->get();
         return view('admin.users.edit', compact('user', 'roles'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualizar usuario y sincronizar rol con Spatie.
+     * Acepta role_id desde el formulario y lo convierte a nombre.
      */
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id, // Permite mantener el email actual
-            'role_id' => 'required|exists:roles,id',
-            'password' => 'nullable|string|min:8|confirmed', // password_confirmation
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'role_id'  => 'required|exists:roles,id',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        $user->name = $request->name;
+        $role = Role::findOrFail($request->role_id);
+
+        $user->name  = $request->name;
         $user->email = $request->email;
-        $user->role_id = $request->role_id;
 
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
         }
 
+        // ⚠️ No guardes role_id en users
         $user->save();
 
-        return redirect()->route('admin.users.index')->with('success', 'Usuario actualizado correctamente.');
+        // Sincronizar roles por NOMBRE (reemplaza roles anteriores)
+        $user->syncRoles([$role->name]);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Usuario actualizado correctamente.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Eliminar usuario (con protección para no auto-eliminarse).
      */
     public function destroy(User $user)
     {
-
-        // Evitar que un administrador se elimine a sí mismo
-        if (auth()->user()->id === $user->id) {
-            return redirect()->route('admin.users.index')->with('error', 'No puedes eliminar tu propia cuenta.');
+        if (auth()->id() === $user->id) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'No puedes eliminar tu propia cuenta.');
         }
 
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'Usuario eliminado correctamente.');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Usuario eliminado correctamente.');
     }
 }

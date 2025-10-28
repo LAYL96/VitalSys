@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Middleware\RoleMiddleware;
-
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-
     public function index()
     {
         // Obtenemos todas las categorías paginadas
@@ -34,16 +31,18 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         // Validación
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-            'description' => 'nullable|string',
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255|unique:categories,name',
+            'description' => 'nullable|string|max:1000',
         ]);
 
-        // Crear categoría
-        Category::create([
-            'name' => $request->name,
-            'description' => $request->description,
-        ]);
+        // Crear categoría con asignación explícita, evitando problemas de $fillable
+        $category = new Category();
+        $category->name = trim($validated['name']);
+        $category->description = isset($validated['description']) && $validated['description'] !== ''
+            ? trim($validated['description'])
+            : null;
+        $category->save();
 
         // Redireccionar con mensaje de éxito
         return redirect()->route('admin.categories.index')
@@ -72,16 +71,17 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         // Validación
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
-            'description' => 'nullable|string',
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'description' => 'nullable|string|max:1000',
         ]);
 
-        // Actualizar datos
-        $category->update([
-            'name' => $request->name,
-            'description' => $request->description,
-        ]);
+        // Actualizar con asignación explícita
+        $category->name = trim($validated['name']);
+        $category->description = isset($validated['description']) && $validated['description'] !== ''
+            ? trim($validated['description'])
+            : null;
+        $category->save();
 
         // Redireccionar con mensaje de éxito
         return redirect()->route('admin.categories.index')
@@ -94,7 +94,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         // Antes de eliminar, se puede verificar si tiene productos asociados
-        if ($category->products()->count() > 0) {
+        if (method_exists($category, 'products') && $category->products()->count() > 0) {
             return redirect()->route('admin.categories.index')
                 ->with('error', 'No se puede eliminar la categoría porque tiene productos asociados.');
         }

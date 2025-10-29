@@ -32,7 +32,8 @@
             {{-- ===========================
                 Formulario
             ============================ --}}
-            <form action="{{ route('cliente.appointments.store') }}" method="POST" id="appointment-form" novalidate>
+            <form action="{{ route('cliente.appointments.store') }}" method="POST" id="appointment-form" novalidate
+                autocomplete="off">
                 @csrf
 
                 {{-- ¿Para quién es la cita? --}}
@@ -44,7 +45,7 @@
                     <div class="grid sm:grid-cols-3 gap-3">
                         <label class="flex items-center gap-2">
                             <input type="radio" name="for" value="me" class="text-blue-600"
-                                {{ old('for', 'me') === 'me' ? 'checked' : '' }}>
+                                {{ old('for', 'me') === 'me' ? 'checked' : '' }} required>
                             <span>Para mí</span>
                         </label>
 
@@ -141,7 +142,7 @@
                             @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <label class="block textsm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Email
                             </label>
                             <input type="email" name="dep_email" value="{{ old('dep_email') }}"
@@ -259,16 +260,21 @@
             refreshForSections();
 
             // Slots / UI refs
+            const form = document.getElementById('appointment-form');
             const dateInput = document.getElementById('date');
             const timeSelect = document.getElementById('time');
             const timeHidden = document.getElementById('time_hidden');
             const doctorHidden = document.getElementById('doctor_id_hidden');
             const submitBtn = document.getElementById('submitBtn');
             const slotsStatus = document.getElementById('slotsStatus');
-
             const doctorsOfDayWrapper = document.getElementById('doctorsOfDayWrapper');
             const doctorsOfDay = document.getElementById('doctorsOfDay');
             const selectedDoctorInfo = document.getElementById('selectedDoctorInfo');
+
+            // Previene dobles envíos
+            form.addEventListener('submit', () => {
+                submitBtn.disabled = true;
+            });
 
             function resetSlotsUI(message) {
                 timeSelect.innerHTML = `<option value="">${message || '-- Selecciona una fecha primero --'}</option>`;
@@ -284,13 +290,19 @@
                 selectedDoctorInfo.textContent = '';
             }
 
-            // Cargar slots cuando cambie la fecha
-            dateInput.addEventListener('change', async () => {
-                const date = dateInput.value;
+            let currentAbort = null;
+            let requestSeq = 0; // evita actualizar UI con respuestas viejas
+
+            async function loadSlotsByDate(date) {
                 if (!date) {
                     resetSlotsUI('-- Selecciona una fecha primero --');
                     return;
                 }
+
+                // Cancela petición anterior si existe
+                if (currentAbort) currentAbort.abort();
+                currentAbort = new AbortController();
+                const seq = ++requestSeq; // marca esta solicitud como la más reciente
 
                 slotsStatus.textContent = 'Cargando horarios...';
                 timeSelect.disabled = true;
@@ -300,18 +312,21 @@
                 submitBtn.disabled = true;
 
                 try {
-                    const url = new URL('{{ route('cliente.appointments.slots') }}', window.location
-                        .origin);
+                    const url = new URL('{{ route('cliente.appointments.slots') }}', window.location.origin);
                     url.searchParams.set('date', date);
 
                     const res = await fetch(url.toString(), {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest'
-                        }
+                        },
+                        signal: currentAbort.signal
                     });
                     if (!res.ok) throw new Error('Error de red');
 
                     const data = await res.json();
+
+                    // Ignora si no es la respuesta más reciente
+                    if (seq !== requestSeq) return;
 
                     if (!data.success || !Array.isArray(data.slots) || data.slots.length === 0) {
                         resetSlotsUI('No hay horarios disponibles para esta fecha');
@@ -334,7 +349,7 @@
                     timeSelect.disabled = false;
                     slotsStatus.textContent = `${data.slots.length} horario(s) disponible(s)`;
 
-                    // Listar médicos disponibles del día (si el endpoint los envía)
+                    // Lista de médicos si el endpoint la envía
                     if (Array.isArray(data.doctors) && data.doctors.length > 0) {
                         doctorsOfDay.innerHTML = '';
                         data.doctors.forEach(d => {
@@ -352,11 +367,15 @@
                     selectedDoctorInfo.textContent = '';
 
                 } catch (e) {
+                    if (e.name === 'AbortError') return; // petición cancelada a propósito
                     console.error(e);
                     resetSlotsUI('Error al cargar horarios');
                     slotsStatus.textContent = 'Error';
                 }
-            });
+            }
+
+            // Cargar slots cuando cambie la fecha
+            dateInput.addEventListener('change', () => loadSlotsByDate(dateInput.value));
 
             // Al seleccionar una hora, fijar doctor y hora (inputs ocultos) y habilitar submit
             timeSelect.addEventListener('change', () => {
@@ -378,7 +397,7 @@
                     selectedDoctorInfo.textContent =
                         `Te atenderá Dr/a. ${parsed.doctor_name} a las ${parsed.time} hrs.`;
                     selectedDoctorInfo.classList.remove('hidden');
-                } catch (e) {
+                } catch {
                     timeHidden.value = '';
                     doctorHidden.value = '';
                     submitBtn.disabled = true;
@@ -390,7 +409,7 @@
             // Restaurar selección si hubo validación previa
             @if (old('date'))
                 (async function restoreOld() {
-                    dateInput.dispatchEvent(new Event('change'));
+                    await loadSlotsByDate(@json(old('date')));
                     setTimeout(() => {
                         const oldTime = @json(old('time'));
                         const oldDoc = @json(old('doctor_id'));
@@ -401,7 +420,7 @@
                                     const val = JSON.parse(opt.value);
                                     return val.time === oldTime && String(val.doctor_id) ===
                                         String(oldDoc);
-                                } catch (_) {
+                                } catch {
                                     return false;
                                 }
                             });
@@ -410,7 +429,7 @@
                                 timeSelect.dispatchEvent(new Event('change'));
                             }
                         }
-                    }, 600);
+                    }, 400);
                 })();
             @endif
         })();

@@ -67,4 +67,9 @@ class User extends Authenticatable
             }
         });
     }
+
+    public function consultationsAsDoctor()
+    {
+        return $this->hasMany(\App\Models\MedicalConsultation::class, 'doctor_id');
+    }
 }

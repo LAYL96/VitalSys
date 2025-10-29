@@ -6,52 +6,73 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class MedicoDashboardController extends Controller
 {
-    /**
-     * Muestra el panel principal del médico con sus citas.
-     */
     public function index()
     {
-        $doctor = Auth::user();
+        $doctorId = Auth::id();
 
-        // Obtener todas las citas del médico autenticado
-        $appointments = Appointment::with('patient')
-            ->where('doctor_id', $doctor->id)
-            ->orderBy('date', 'asc')
+        $pendingAppointments = Appointment::with(['patient', 'consultation'])
+            ->where('doctor_id', $doctorId)
+            ->where('status', 'pendiente')
+            ->orderBy('date')
+            ->orderBy('time')
             ->get();
 
-        // Separar citas por estado
-        $pendingAppointments = $appointments->where('status', 'pendiente');
-        $completedAppointments = $appointments->where('status', 'completada');
-        $canceledAppointments = $appointments->where('status', 'cancelada');
+        $completedAppointments = Appointment::with(['patient'])
+            ->where('doctor_id', $doctorId)
+            ->where('status', 'completada')
+            ->orderByDesc('date')
+            ->orderByDesc('time')
+            ->get();
+
+        $canceledAppointments = Appointment::with(['patient'])
+            ->where('doctor_id', $doctorId)
+            ->where('status', 'cancelada')
+            ->orderByDesc('date')
+            ->orderByDesc('time')
+            ->get();
 
         return view('medico.dashboard', compact(
-            'doctor',
             'pendingAppointments',
             'completedAppointments',
             'canceledAppointments'
         ));
     }
 
-    /**
-     * Permite al médico actualizar el estado de una cita (completar o cancelar).
-     */
-    public function updateStatus(Request $request, Appointment $appointment)
+    public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pendiente,completada,cancelada',
+            'status' => 'required|in:cancelada,completada,pendiente',
         ]);
 
-        // Verificar que la cita pertenezca al médico autenticado
-        if ($appointment->doctor_id !== Auth::id()) {
-            abort(403, 'No autorizado para modificar esta cita.');
+        $appointment = Appointment::with(['patient'])->findOrFail($id);
+
+        if ((int) $appointment->doctor_id !== (int) Auth::id()) {
+            throw ValidationException::withMessages([
+                'appointment' => 'No autorizado para modificar esta cita.',
+            ]);
         }
 
-        $appointment->status = $request->status;
-        $appointment->save();
+        // Completar desde el dashboard NO: redirige al formulario de completar
+        if ($request->status === 'completada') {
+            return redirect()
+                ->route('medico.appointments.complete', $appointment)
+                ->with('error', 'Para completar debes registrar diagnóstico y receta.');
+        }
 
-        return redirect()->route('medico.dashboard')->with('success', 'Estado de la cita actualizado correctamente.');
+        if ($request->status === 'pendiente') {
+            $appointment->update(['status' => 'pendiente']);
+            return back()->with('success', 'La cita fue puesta como pendiente nuevamente.');
+        }
+
+        if ($request->status === 'cancelada') {
+            $appointment->update(['status' => 'cancelada']);
+            return back()->with('success', 'La cita fue cancelada correctamente.');
+        }
+
+        return back()->with('error', 'Acción no permitida.');
     }
 }

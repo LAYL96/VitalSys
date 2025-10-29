@@ -30,6 +30,6 @@ class Appointment extends Model
 
     public function consultation()
     {
-        return $this->hasOne(\App\Models\MedicalConsultation::class, 'appointment_id');
+        return $this->hasOne(\App\Models\MedicalConsultation::class);
     }
 }

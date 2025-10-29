@@ -9,18 +9,34 @@ class MedicalConsultation extends Model
 {
     use HasFactory;
 
+    // Nombre de tabla explícito (por si tu convención difiere)
+    protected $table = 'medical_consultations';
+
     protected $fillable = [
         'appointment_id',
-        'doctor_id',
         'patient_id',
+        'doctor_id',
+        'reason',
         'diagnosis',
         'prescription',
-        'notes',
+        'temperature',
+        'pulse',
+        'pressure',
+        'weight',
     ];
+
+    /* =========================
+       Relaciones
+    ========================== */
 
     public function appointment()
     {
         return $this->belongsTo(Appointment::class);
+    }
+
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
     }
 
     public function doctor()
@@ -28,8 +44,17 @@ class MedicalConsultation extends Model
         return $this->belongsTo(User::class, 'doctor_id');
     }
 
-    public function patient()
+    /* =========================
+       Scopes útiles (opcionales)
+    ========================== */
+
+    public function scopeForDoctor($query, int $doctorId)
     {
-        return $this->belongsTo(Patient::class);
+        return $query->where('doctor_id', $doctorId);
+    }
+
+    public function scopeForPatient($query, int $patientId)
+    {
+        return $query->where('patient_id', $patientId);
     }
 }
